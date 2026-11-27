@@ -1,0 +1,22 @@
+{
+  "files": {
+    "app.py": "8e9727482e135a9634bcf8e9ff3fb1179c061274eb3e83cf15f6ca56bae6aff5",
+    "static/app.js": "cd389a37097535ba083e2391d39e5c0bd7862620ec70bee9e0d4d934d98df60c",
+    "static/icons/apple-touch-icon.png": "cc9c7d7ec0c2e3c3e4b1f0985080813763d223669c9dfc613a19d800696014d0",
+    "static/icons/favicon-32.png": "02ed75031c5734df7106aed9d3806eb056df1c77f0830f216506ca1c9a6bc564",
+    "static/icons/icon-192.png": "0c72f178646d8ac9fc45a1443d06b89ce9046b5bc2d6e5b7a82ad1fb56e79ee9",
+    "static/icons/icon-512.png": "faacd74e24fdf0ec67e2364283f3afd07c0d39dd80b49855ecc2af77abeda2ae",
+    "static/index.html": "fe3d6cda57d061a08fa1e7286cb4d3e33109ae8a225a3c79547a6b9e1fa8e36b",
+    "static/manifest.webmanifest": "369b650cd3ae4298eb4ca40c6f7ca0f66a7c8af1f0de88805f524b8e9dd09b5f",
+    "static/qrcode.min.js": "c541ef06327885a8415bca8df6071e14189b4855336def4f36db54bde8484f36",
+    "static/style.css": "92944c50aa89cbb389d5ad8237f8588d7a15cc782ad19e1204a7ad1851e90ed6",
+    "static/sw.js": "0923ce7d4851a472cde23609bd859fd5a32cd5ff2af9f974cb14ef2fa3cd630f",
+    "使用说明.txt": "3233c31550ffb836997e3e5e4b1fe617d2807ed525a338d542d99089c9e4b615",
+    "停止.bat": "e1c45143bf39470ac5b5961b4464a6d4757febfea9a96b3b315f5636af7cce82",
+    "启动.bat": "3f5b9263d8c580aba91dc6545b9bcb638029a4b9ef9f9034dd8768cf9ea0d420",
+    "更新日志.txt": "a95cd131d0dedc0a56f7995bd354606bd3f559a396de53a0ebe49961bf8dd818",
+    "生成快捷方式.bat": "e76ffcd75172435ab74bf50494f4e4ffb795e12866b3fb595c4f3cc23353bc28"
+  },
+  "generated_at": "2026-11-27T13:40:03.156307+00:00",
+  "version": "1.7.2"
+}

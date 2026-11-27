@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f2">
+<link rel="icon" type="image/png" href="./pace-icon.png">
+<link rel="manifest" href="./go-manifest.webmanifest">
+<link rel="apple-touch-icon" href="./pace-apple-touch.png">
+<title>日拱一卒 · 跳转</title>
+<style>
+  :root { --bg:#faf7f2; --card:#fff; --ink:#2b2620; --ink-soft:#8a8175; --line:#e5ded2; --accent:#c2703e; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 48px 20px 32px; }
+  img.logo { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 4px 18px rgba(0,0,0,.12); }
+  h1 { font-size: 20px; letter-spacing: .12em; margin: 14px 0 4px; }
+  .sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 28px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+          width: 100%; max-width: 420px; }
+  #status { font-size: 14px; text-align: center; padding: 10px 0; }
+  #status .spin { display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .dest { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--line);
+          border-radius: 10px; margin-top: 10px; }
+  .dest .meta { flex: 1; min-width: 0; }
+  .dest .label { font-weight: 700; font-size: 14px; }
+  .dest .url { font-size: 12px; color: var(--ink-soft); word-break: break-all; }
+  .dest button { flex-shrink: 0; font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 99px;
+                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  .dest .del { border-color: var(--line); background: transparent; color: var(--ink-soft); padding: 7px 10px; }
+  #add-form { display: flex; gap: 8px; margin-top: 14px; }
+  #add-form input { flex: 1; min-width: 0; font: inherit; font-size: 13px; padding: 8px 10px;
+                    border: 1px solid var(--line); border-radius: 8px; }
+  #add-form button { font: inherit; font-size: 13px; padding: 8px 14px; border-radius: 8px;
+                     border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+  .tip { font-size: 12px; color: var(--ink-soft); margin-top: 16px; line-height: 1.7; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<img class="logo" src="./pace-icon.png" alt="日拱一卒">
+<h1>日拱一卒</h1>
+<div class="sub">正在找你最近的 pace…</div>
+<div class="card">
+  <div id="status"><span class="spin">◌</span> 探测中…</div>
+  <div id="dests"></div>
+  <form id="add-form" class="hidden">
+    <input id="add-url" type="url" placeholder="http://192.168.x.x:18630" required>
+    <input id="add-label" type="text" placeholder="名字（如 家 / 公司）" style="max-width:110px">
+    <button type="submit">添加</button>
+  </form>
+  <label style="display:flex;align-items:center;gap:6px;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer">
+    <input type="checkbox" id="auto-jump"> 找到能通的 pace 后自动进入（3 秒倒计时，可取消）
+  </label>
+  <div class="tip" id="tip">
+    收藏本页，以后点一下就自动跳到能通的那台 pace。<br>
+    地址变了：在 pace 电脑页面点「手机访问」扫码，自动登记新地址。
+  </div>
+</div>
+<script>
+const KEY = "pace_go_dests";
+const AUTO_KEY = "pace_go_auto";
+let jumpTimer = null;
+function cancelJump() {
+  if (jumpTimer) { clearInterval(jumpTimer); jumpTimer = null; }
+}
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
+const save = (list) => localStorage.setItem(KEY, JSON.stringify(list));
+
+// ?set=http://...&label=公司 —— pace 页头二维码带来，登记后清掉参数
+const q = new URLSearchParams(location.search);
+let dests = load();
+if (q.get("set")) {
+  const url = q.get("set").replace(/\/+$/, "");
+  const label = q.get("label") || "";
+  const i = dests.findIndex(d => d.url === url);
+  if (i >= 0) dests[i].label = label || dests[i].label;
+  else dests.push({ url, label });
+  save(dests);
+  history.replaceState(null, "", location.pathname);
+}
+
+const statusEl = document.getElementById("status");
+const destsEl = document.getElementById("dests");
+const addForm = document.getElementById("add-form");
+
+function render() {
+  destsEl.innerHTML = "";
+  dests.forEach((d, i) => {
+    const row = document.createElement("div");
+    row.className = "dest";
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const lab = document.createElement("div");
+    lab.className = "label";
+    lab.textContent = d.label || d.url.replace(/^https?:\/\//, "");
+    const u = document.createElement("div");
+    u.className = "url";
+    u.textContent = d.url;
+    const st = document.createElement("div");
+    st.className = "url";
+    st.id = "st-" + i;
+    meta.append(lab, u, st);
+    const go = document.createElement("button");
+    go.textContent = "进入";
+    go.onclick = () => { cancelJump(); location.href = d.url; };
+    const del = document.createElement("button");
+    del.className = "del";
+    del.textContent = "删";
+    del.onclick = () => { dests.splice(i, 1); save(dests); render(); };
+    row.append(meta, go, del);
+    destsEl.append(row);
+  });
+  addForm.classList.toggle("hidden", false);
+}
+
+addForm.onsubmit = (e) => {
+  e.preventDefault();
+  const url = document.getElementById("add-url").value.trim().replace(/\/+$/, "");
+  const label = document.getElementById("add-label").value.trim();
+  if (!url) return;
+  if (!dests.some(d => d.url === url)) dests.push({ url, label });
+  save(dests);
+  addForm.reset();
+  render();
+  probe();
+};
+
+async function alive(url, ms) {
+  // 第一路：CORS 直连读 /api/state，拿到 version 才算铁证
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), ms);
+  try {
+    const r = await fetch(url + "/api/state", { signal: ctl.signal, cache: "no-store" });
+    const j = await r.json();
+    return j && j.version ? "ok" : "dead";
+  } catch (e) {
+    // 第二路：no-cors 可达性兜底。部分手机浏览器拦跨域读内容但不拦导航，
+    // no-cors fetch 不 reject 就说明对面有服务在听（地址是用户扫码登记的，可信）
+    try {
+      const ctl2 = new AbortController();
+      const timer2 = setTimeout(() => ctl2.abort(), ms);
+      await fetch(url + "/", { signal: ctl2.signal, mode: "no-cors", cache: "no-store" });
+      clearTimeout(timer2);
+      return "maybe";
+    } catch (e2) {
+      return "dead";
+    }
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function setSt(i, text) {
+  const el = document.getElementById("st-" + i);
+  if (el) el.textContent = text;
+}
+
+let probing = false;
+async function probe() {
+  if (probing) return;
+  if (!dests.length) { statusEl.textContent = "还没有登记地址，先加一个："; return; }
+  probing = true;
+  statusEl.innerHTML = '<span class="spin">◌</span> 探测 ' + dests.length + ' 台 pace…';
+  dests.forEach((d, i) => setSt(i, "探测中…"));
+  // 同时探测，第一个通的直接跳；都不通就停在列表手动选
+  let first = null;
+  const attempts = dests.map((d, i) => alive(d.url, 3500).then(r => {
+    setSt(i, r === "ok" ? "可连接 ✓" : (r === "maybe" ? "可连接 ✓（验证被浏览器拦，已放行）" : "连不上"));
+    if (r === "dead") throw new Error("dead");
+    return d.url;
+  }));
+  if (typeof Promise.any === "function") {
+    first = await Promise.any(attempts).catch(() => null);
+  } else {
+    for (const a of attempts) { const u = await a.catch(() => null); if (u) { first = u; break; } }
+  }
+  probing = false;
+  if (first) {
+    const d0 = dests.find(d => d.url === first);
+    const name = d0 ? (d0.label || d0.url.replace(/^https?:\/\//, "")) : first;
+    if (!autoBox.checked) {
+      statusEl.textContent = "找到了「" + name + "」，点下面「进入」";
+      return;
+    }
+    // 3 秒倒计时自动进入，可取消（取消后保持手动，本页不再自动跳）
+    statusEl.innerHTML = "";
+    const msg = document.createElement("span");
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "取消";
+    cancelBtn.style.cssText = "margin-left:10px;font:inherit;font-size:13px;padding:4px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);cursor:pointer";
+    cancelBtn.onclick = () => { cancelJump(); statusEl.textContent = "已取消自动进入，手动选："; };
+    statusEl.append(msg, cancelBtn);
+    let sec = 3;
+    const tick = () => { msg.textContent = "找到了「" + name + "」，" + sec + " 秒后自动进入…"; };
+    tick();
+    jumpTimer = setInterval(() => {
+      sec -= 1;
+      if (sec <= 0) {
+        cancelJump();
+        location.replace(first);
+        return;
+      }
+      tick();
+    }, 1000);
+  } else {
+    statusEl.textContent = "都没连上：pace 没在跑，或者浏览器拦了本地网络访问（点下面「进入」可直接试）";
+  }
+}
+
+const autoBox = document.getElementById("auto-jump");
+autoBox.checked = localStorage.getItem(AUTO_KEY) !== "0";
+autoBox.onchange = () => localStorage.setItem(AUTO_KEY, autoBox.checked ? "1" : "0");
+
+render();
+probe();
+
+// 注册 service worker（仅为满足 PWA 可安装条件；失败不影响跳转功能）
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./go-sw.js").catch(() => {});
+</script>
+</body>
+</html>

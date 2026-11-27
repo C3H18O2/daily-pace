@@ -1,0 +1,1386 @@
+:root {
+  --bg: #faf6ef;
+  --card: #fffdf8;
+  --ink: #3d3830;
+  --ink-soft: #746b60;
+  --line: #e8e0d0;
+  --accent: #925c35;
+  /* 日常（loop）与项目推进（其它任务）的两套色，图表和 hero 统一用 */
+  --routine: #587653;
+  --routine-fill: #587653;
+  --project-bar: #c9b894;
+  --project-fill: #b3a37e;
+  /* 语义色 token：换皮肤只改这一组，组件一律引用变量不写死颜色。
+     solid 版本给按钮底用（白字），普通版给文字/描边用 */
+  --on-accent: #fff;
+  --danger: #a05252;
+  --danger-solid: #a05252;
+  --ok: #587653;
+  --ok-solid: #587653;
+  --warn: #925c35;
+  --stale: #c08434;
+  --veil: rgba(0,0,0,.025);
+  --input-bg: #fff;
+  --timerbar-bg: #3d3830;
+  --timerbar-ink: #faf6ef;
+  --timerbar-dot: #e8b04b;
+  --overlay: rgba(61,56,48,.45);
+  --card-shadow: 0 1px 3px rgba(61,56,48,.06);
+  --today-bg: #f6e8d8;
+  --today-ink: #8a5a2a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 16px 96px;
+  line-height: 1.6;
+}
+
+h1, h2, .big-number {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+
+.hidden { display: none !important; }
+
+/* 顶部计时条 */
+.timerbar {
+  position: sticky; top: 8px; z-index: 10;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--timerbar-bg); color: var(--timerbar-ink);
+  border-radius: 12px; padding: 10px 14px;
+  box-shadow: 0 4px 14px rgba(61,56,48,.25);
+}
+.timerbar-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--timerbar-dot); animation: pulse 1.2s infinite;
+}
+@keyframes pulse { 50% { opacity: .3; } }
+.timerbar-title { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.timerbar-elapsed { font-variant-numeric: tabular-nums; font-size: 15px; }
+
+.site-header { text-align: center; margin: 18px 0 20px; }
+.site-header h1 { font-size: 26px; letter-spacing: .15em; }
+.subtitle { color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+/* 页头英文小字：每套皮肤一句，内容跟着 data-theme 换，样式统一在这里 */
+.site-header::before {
+  content: "DAILY LOG / STEP BY STEP";
+  display: block; margin-bottom: 2px;
+  font-size: 10px; font-weight: 700; letter-spacing: .22em; color: var(--accent);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--card-shadow);
+}
+
+/* 今日总览 */
+.hero { text-align: center; padding: 22px 16px; }
+.hero .label { color: var(--ink-soft); font-size: 13px; }
+.big-number { font-size: 44px; color: var(--accent); margin: 4px 0; }
+.progress-track {
+  height: 8px; background: var(--line); border-radius: 99px;
+  overflow: hidden; margin-top: 12px;
+}
+.progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s; }
+.progress-text { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+.quick-log-btn {
+  margin-left: 6px; padding: 2px 4px; border: none; background: none;
+  color: var(--accent); font-size: 12px; vertical-align: baseline;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* 普通文档流会继承各皮肤的 hero 对齐；深色 hero 也不套用白色实心按钮。 */
+html[data-theme] .hero .quick-log-btn { background: none; color: var(--accent); }
+.progress-main { font-size: 15px; color: var(--ink); font-weight: 600; margin-top: 8px; }
+.progress-main .progress-strong { font-size: 19px; }
+/* hero 里的强弱读数：class 上色，皮肤层才好翻色或加描边 */
+.progress-strong.danger { color: var(--danger); }
+.progress-strong.ok { color: var(--ok); }
+.progress-text.gap-over { color: var(--danger); }
+.progress-text.gap-ok { color: var(--ok); }
+.settle-preview .progress-strong { font-weight: 600; }
+
+/* 项目卡 */
+.proj-head { display: flex; align-items: center; gap: 12px; }
+.ring {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.ring span {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+}
+.proj-info { flex: 1; }
+.proj-name { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.proj-meta { font-size: 12px; color: var(--ink-soft); }
+.slack-hint { font-size: 12px; color: var(--warn); margin-top: 8px; }
+
+/* 任务列表 */
+.task-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 2px; border-bottom: 1px dashed var(--line);
+}
+.task-row:last-child { border-bottom: none; }
+.task-row .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.task-title { flex: 1; font-size: 15px; }
+.task-meta { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+/* 标签：#qc 这种小胶囊，挂在 meta 后面。任务行的操作按钮不能被挤走，
+   所以胶囊不占 flex-grow，窄屏时整块折到下一行 */
+.tag-chip { display: inline-flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0; }
+.tag-chip .tag-one {
+  font-size: 11px; line-height: 1.2; padding: 1px 6px; border-radius: 99px;
+  color: var(--accent); background: color-mix(in srgb, var(--routine) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--routine) 35%, transparent); white-space: nowrap;
+}
+.suspended-row .tag-chip .tag-one { opacity: .65; }
+/* 行尾操作：宽屏靠 display:contents 平铺（视觉跟以前一样），窄屏收进 ⋯ 菜单 */
+.row-actions, .row-menu { display: contents; }
+.btn-more { display: none; }
+.row-menu-item .lbl { display: none; }
+.btn-timing { color: var(--danger); }
+.routine-badge { font-size: 11px; }
+/* 今日建议的全局序号：建议分组后顺序只能靠它看出来，1-20 用圈码 */
+.rank-badge {
+  flex-shrink: 0; font-size: 12px; line-height: 1; color: var(--ink-soft);
+  min-width: 14px; text-align: center;
+}
+/* hero 下的「下一件推荐」：第一件是当前最该做的，正常字号 + 强调色；
+   其余小一号灰字，扫一眼就分得出主次 */
+.next-rec { padding: 12px 16px; }
+.next-rec-head {
+  font-family: "Noto Serif SC", "Songti SC", serif; font-size: 15px; color: var(--accent);
+}
+.next-rec-note { font-size: 12px; color: var(--ink-soft); margin: 2px 0 4px; }
+.next-rec-row.first .task-title { font-size: 15px; color: var(--ink); font-weight: 600; }
+.next-rec-row.first .rank-badge { color: var(--accent); font-size: 14px; }
+.next-rec-row:not(.first) .task-title { font-size: 13px; color: var(--ink-soft); }
+.next-rec-row:not(.first) .task-meta { font-size: 11px; }
+.next-rec-row:not(.first) .dot { opacity: .55; }
+/* 设置页分段按钮：一个键几个固定档，当前值高亮 */
+.seg-ctrl { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg-btn {
+  border: none; border-radius: 0; padding: 6px 14px; background: var(--card);
+  color: var(--ink-soft); font-size: 13px;
+}
+.seg-btn + .seg-btn { border-left: 1px solid var(--line); }
+.seg-btn.active { background: var(--accent); color: var(--on-accent); }
+
+button {
+  font: inherit; cursor: pointer;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 8px; padding: 6px 12px;
+}
+button:active { transform: scale(.97); }
+.btn-play { color: var(--accent); border-color: var(--accent); }
+.btn-stop { background: var(--danger-solid); border-color: var(--danger-solid); color: #fff; }
+.btn-done { background: var(--ok-solid); border-color: var(--ok-solid); color: #fff; }
+select.sel-empty { color: var(--ink-soft); }
+.proj-edit { margin-bottom: 6px; }
+.proj-edit > summary { color: var(--ink-soft); font-size: 13px; cursor: pointer; user-select: none; }
+.add-task { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 10px; }
+.add-task-btn { width: 100%; margin-top: 8px; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-check { border: none; background: none; font-size: 17px; padding: 2px 6px; color: var(--ink-soft); display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.btn-check.done { color: var(--ok); }
+
+/* 图标：引用 index.html 的 sprite，em 尺寸跟所在文字走，描边吃 currentColor，换皮肤不用改 */
+.ic {
+  width: 1.05em; height: 1.05em; flex: none; vertical-align: -0.18em;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.ic-routine { color: var(--routine); }
+.ic-soft { color: var(--ink-soft); }
+.ic-ok { color: var(--routine-fill); }
+.ic-flame { color: var(--accent); }
+.legend-dot {
+  display: inline-block; width: 0.8em; height: 0.8em; border-radius: 2px;
+  margin-right: 4px; vertical-align: -0.08em;
+}
+/* 图文混排的按钮：图标和文字居中对齐 */
+.timerbar .btn, .guide-entry, .btn-with-ic { display: inline-flex; align-items: center; gap: 5px; }
+
+/* 表单 */
+.form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+input, select {
+  font: inherit; color: var(--ink);
+  background: var(--input-bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 7px 10px; min-width: 0;
+}
+input[type=text] { flex: 1; }
+input[type=number] { width: 84px; }
+/* 预估分钟组件：数字框 + 「无预估」勾选（新建行和编辑行共用） */
+.est-field { display: inline-flex; align-items: center; gap: 6px; }
+.est-field input[type=number] { width: 162px; }  /* 要放得下「分钟，留空按 45」（另留了数字框上下箭头的空位） */
+.est-field label { font-size: 12px; color: var(--ink-soft); white-space: nowrap; cursor: pointer; }
+.est-field label input { margin-right: 2px; }
+.est-field input[type=number]:disabled { background: var(--line); color: var(--ink-soft); }
+.section-title { font-size: 14px; color: var(--ink-soft); margin: 20px 0 8px; letter-spacing: .1em; }
+
+/* 项目页 */
+.proj-block { border-left: 3px solid var(--line); }
+.proj-block .proj-head { cursor: pointer; }
+.proj-block.drop-hint { border-color: var(--accent); border-style: dashed; }
+.proj-chevron { color: var(--ink-soft); font-size: 12px; width: 14px; flex-shrink: 0; }
+.color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.drag-handle {
+  color: var(--ink-soft); font-size: 14px; cursor: grab;
+  user-select: none; padding: 0 4px; margin-right: 2px;
+}
+.drag-handle:active { cursor: grabbing; }
+.project-filter { width: 100%; }
+.order-row { margin-top: 0; margin-bottom: 6px; }
+.order-row button { font-size: 13px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; }
+.order-row button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* 🗑 垃圾桶（软删除的项目/任务，可恢复） */
+.trash-box > summary { cursor: pointer; color: var(--ink-soft); font-size: 13px; user-select: none; }
+.trash-box[open] > summary { margin-bottom: 4px; }
+.trash-hint { font-size: 13px; color: var(--ink-soft); margin: 6px 0; }
+.trash-empty { font-size: 13px; margin: 4px 0; }
+.trash-row {
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px dashed var(--line); padding: 6px 2px;
+}
+.trash-row:last-child { border-bottom: none; }
+.trash-name { flex: 1; font-size: 13px; min-width: 0; }
+.trash-row .btn-primary, .trash-row .btn-check { font-size: 13px; padding: 4px 10px; }
+
+/* 统计 */
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; margin-top: 10px; }
+.bar-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.bar { width: 100%; background: var(--project-bar); border-radius: 3px 3px 0 0; min-height: 2px; display: flex; flex-direction: column-reverse; overflow: hidden; }
+.bar.today { background: var(--accent); }
+.bar-label { font-size: 11px; color: var(--ink-soft); }
+.bar-routine { width: 100%; background: var(--routine); }
+.bar-legend { margin-top: 6px; font-size: 11px; color: var(--ink-soft); }
+/* 一行摆多个色块：色块和它的文字之间不拉开间距，色块之间才拉 */
+.bar-legend.legend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.legend-chip, .legend-note { white-space: nowrap; }
+.rank-row { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px dashed var(--line); }
+.rank-row:last-child { border-bottom: none; }
+
+/* 星期多选 */
+.wd-chips { display: inline-flex; gap: 4px; align-self: center; }
+.wd-chip {
+  width: 30px; height: 30px; padding: 0; border-radius: 50%;
+  font-size: 12px; text-align: center;
+}
+.wd-chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+/* 统计：每天×项目堆叠柱 */
+.bar-stack {
+  width: 100%; display: flex; flex-direction: column-reverse;
+  border-radius: 3px 3px 0 0; overflow: hidden; min-height: 2px;
+  cursor: pointer;
+}
+.bar-seg { width: 100%; }
+.bar-stack.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dp-detail { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.dp-proj { border-bottom: 1px dashed var(--line); }
+.dp-proj:last-child { border-bottom: none; }
+.dp-proj summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 2px; cursor: pointer; list-style: none;
+}
+.dp-proj summary::-webkit-details-marker { display: none; }
+.dp-proj summary::before { content: "▸"; color: var(--ink-soft); font-size: 12px; }
+.dp-proj[open] summary::before { content: "▾"; }
+.dp-proj .rank-row { padding-left: 26px; }
+/* loop 任务的预估校准行：缩进再深一层贴着上面那行 loop，窄屏允许折行、不撑爆 */
+.dp-proj .calib-row { padding: 2px 2px 6px 42px; gap: 8px; }
+.dp-proj .calib-row .task-meta { color: var(--ink-soft); font-size: 11.5px; padding-left: 0; }
+.calib-adopt {
+  flex-shrink: 0; font-size: 12px; padding: 2px 8px; min-height: 0;
+  border: 1px solid var(--line); border-radius: 6px;
+}
+/* 统计页「按标签统计」：一行一个 #标签，均次/总耗时平铺，差出三成标浅橙。
+   v0.19.9 起跨项目的 tag 折起来是一行汇总，点开按项目拆（写法照「项目累计投入」） */
+.tag-stats { padding: 10px 16px; }
+/* 只约束外层的折叠头，别把里面 tag-item 的 summary 也染成标题样式 */
+.tag-stats > summary {
+  display: flex; align-items: baseline; gap: 10px; cursor: pointer;
+  font-family: "Noto Serif SC", "Songti SC", serif; font-size: 14px; color: var(--accent);
+  list-style: none;
+}
+.tag-stats > summary::-webkit-details-marker { display: none; }
+.tag-stats > summary::before { content: "▸"; color: var(--ink-soft); font-size: 12px; }
+.tag-stats[open] > summary::before { content: "▾"; }
+/* 特异性要高过 `.rank-row .task-meta`（那条带 order:9 + flex-basis:100%），
+   否则窄屏下 #tag 和数字会被拆成两行，中间空一大块 */
+.tag-stats .tag-row { flex-wrap: wrap; row-gap: 2px; gap: 8px; }
+.tag-stats .tag-row .task-title { flex: 0 0 auto; font-size: 14px; }
+.tag-stats .tag-row .task-meta { white-space: normal; }
+.tag-off, .tag-fair { font-size: 11.5px; line-height: 1.2; padding: 1px 6px; border-radius: 99px; }
+.tag-off { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.tag-fair { color: var(--ink-soft); }
+.tag-stats .tag-row .tag-extra {
+  flex-basis: 100%; font-size: 11.5px; color: var(--ink-soft); opacity: .8;
+  padding-left: 2px;
+}
+/* 跨项目的 tag：汇总行可点开，子行缩进一层写项目名 + 该项目自己的件数/均次 */
+.tag-item { border-bottom: 1px dashed var(--line); }
+.tag-item:last-child { border-bottom: none; }
+.tag-sum-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  padding: 8px 2px; cursor: pointer; list-style: none;
+}
+.tag-sum-row::-webkit-details-marker { display: none; }
+.tag-sum-row::before { content: "▸"; color: var(--ink-soft); font-size: 12px; }
+.tag-item[open] .tag-sum-row::before { content: "▾"; }
+.tag-sum-row .task-title { flex: 0 0 auto; font-size: 14px; }
+.tag-projs { font-size: 11.5px; color: var(--ink-soft); opacity: .85; white-space: nowrap; }
+.tag-sub {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  padding: 2px 2px 6px 26px;
+}
+.tag-sub-name { flex: 0 0 auto; font-size: 13px; color: var(--ink); }
+.tag-sub .task-meta { white-space: normal; }
+.tag-sub .tag-extra {
+  flex-basis: 100%; font-size: 11.5px; color: var(--ink-soft); opacity: .8;
+  padding-left: 2px;
+}
+/* 逐条工时（合并行下面缩进一层）：时间·时长·备注 + 改/删 */
+.log-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 2px 4px 40px; border-bottom: 1px dashed var(--line);
+}
+.log-row .task-meta { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-row .btn-check { font-size: 13px; padding: 2px 6px; }
+.log-edit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  padding: 6px 2px 6px 40px; border-bottom: 1px dashed var(--line);
+}
+.log-edit .task-meta { flex: 0 0 auto; }
+.log-edit input[type=number] { width: 72px; }
+.log-edit input[type=text] { width: 180px; }
+.log-edit .btn-check { font-size: 13px; padding: 4px 10px; }
+
+/* 底部导航 */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; background: var(--card);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-btn {
+  flex: 1; border: none; border-radius: 0; background: none;
+  padding: 13px 0; font-size: 15px; color: var(--ink-soft);
+}
+.nav-btn.active { color: var(--accent); font-weight: 600; }
+
+.empty { text-align: center; color: var(--ink-soft); padding: 32px 0; font-size: 14px; }
+
+/* 日历 */
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-title { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 17px; }
+.cal-nav { display: flex; gap: 6px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-week { text-align: center; font-size: 11px; color: var(--ink-soft); padding: 2px 0; }
+.cal-cell {
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  min-height: 100px; padding: 5px; font-size: 11px; cursor: pointer;
+}
+.cal-cell.past { opacity: .6; }
+.cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.cal-cell.drop-hint { border-color: var(--accent); border-style: dashed; }
+.cal-daynum { font-weight: 600; font-size: 13px; }
+.cal-chip {
+  border-left: 3px solid var(--ink-soft); background: var(--bg);
+  border-radius: 4px; padding: 2px 5px; margin-top: 3px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: grab; font-size: 12px;
+}
+.cal-chip.overdue { color: var(--danger); }
+.cal-chip.due-only { border-left-style: dashed; color: var(--ink-soft); }
+.cal-chip.occ-chip { background: none; opacity: .55; border-left-style: dotted; cursor: default; }
+.cal-chip.deadline-chip {
+  background: var(--today-bg); color: var(--today-ink); font-weight: 600; cursor: default;
+}
+.cal-meta { color: var(--ink-soft); font-size: 11px; margin-top: 3px; }
+/* 格子放不下时的折叠条：点开看全天 */
+.cal-chip.more-chip {
+  background: var(--line); color: var(--ink-soft); cursor: pointer;
+  border-left-color: var(--ink-soft); text-align: center;
+}
+.cal-blank { min-height: 100px; }
+.pool-hint { font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; }
+.task-row.selected { outline: 2px solid var(--accent); border-radius: 8px; outline-offset: -2px; }
+.overdue-tag { color: var(--danger); font-size: 11px; }
+
+/* 日历：某天全部条目的浮层 */
+.day-overlay {
+  position: fixed; inset: 0; z-index: 95;
+  background: var(--overlay);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.day-panel {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  width: min(520px, 100%); max-height: 80vh; overflow-y: auto;
+  padding: 14px; box-shadow: 0 8px 30px rgba(61,56,48,.28);
+}
+.day-panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.day-panel-head .cal-title { flex: 1; }
+.day-row {
+  display: flex; align-items: center; gap: 8px;
+  border-left: 3px solid var(--ink-soft); background: var(--bg);
+  border-radius: 4px; padding: 8px 8px; margin-top: 4px; cursor: default;
+}
+.day-row .task-title { font-size: 14px; }
+.day-row .task-meta { font-size: 12px; }
+.backup-row-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.backup-row .btn-primary { flex: 0 0 auto; }
+.day-row.overdue .task-title { color: var(--danger); }
+.day-row.occ { opacity: .6; border-left-style: dotted; cursor: default; }
+.day-row.deadline {
+  background: var(--today-bg); color: var(--today-ink); font-weight: 600; cursor: default;
+}
+.day-row .btn-check { font-size: 15px; }
+
+/* 窄屏（手机）适配 */
+@media (max-width: 600px) {
+  body { padding: 10px 10px 88px; }
+  .card { padding: 12px; border-radius: 10px; }
+  .site-header { margin: 10px 0 14px; }
+  .site-header h1 { font-size: 22px; }
+  .hero { padding: 16px 12px; }
+  .big-number { font-size: 36px; }
+  .safety-track.dual-plan { margin: 24px 2px 22px; }
+  .safety-track.dual-actual { margin: 2px 2px 10px; }
+
+  /* 任务行两行布局：标题+按钮一行，元信息缩进独占一行，不再挤压 */
+  .task-row { flex-wrap: wrap; row-gap: 2px; padding: 9px 2px; }
+  .task-row .task-title { min-width: 0; overflow-wrap: anywhere; }
+  /* 行尾只留主操作 + ⋯，其余收进整行宽的竖排菜单；触控目标 ≥36px */
+  .task-row .btn-play, .task-row .btn-check { min-width: 34px; min-height: 34px; }
+  .btn-more {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 36px; min-height: 36px; padding: 0 4px; border: none;
+    background: none; color: var(--ink-soft); font-size: 20px; line-height: 1;
+  }
+  .btn-more.open { color: var(--accent); }
+  .row-menu { display: none; }
+  .row-menu.open {
+    display: flex; flex-direction: column; flex-basis: 100%; order: 10;
+    margin-top: 4px; padding-top: 4px; border-top: 1px dashed var(--line);
+  }
+  .row-menu-item {
+    display: flex; align-items: center; gap: 10px; min-height: 36px;
+    padding: 6px 8px; text-align: left; font-size: 14px; color: var(--ink);
+  }
+  .row-menu-item .lbl { display: inline; }
+  .task-row .task-meta {
+    order: 9; flex-basis: 100%; white-space: normal;
+    padding-left: 19px; line-height: 1.4;
+  }
+  .rank-row { flex-wrap: wrap; row-gap: 2px; }
+  .rank-row .task-title { min-width: 0; overflow-wrap: anywhere; }
+  .rank-row .task-meta { order: 9; flex-basis: 100%; white-space: normal; padding-left: 22px; }
+  /* 标签统计那几行例外：别的 rank-row 把 meta 顶到下一行才对，
+     这里 #tag 和「完成 N 件 · 均次 Xm」得挨着读，只让补充小字独占一行 */
+  .tag-stats .tag-row .task-meta { order: 0; flex-basis: auto; padding-left: 0; }
+  /* 按项目拆开的子行同理：项目名和数字挨着，缩进收窄一点别把小屏挤没 */
+  .tag-sub { padding-left: 18px; row-gap: 2px; }
+  .tag-sub .task-meta { order: 0; flex-basis: auto; padding-left: 0; }
+
+  /* 表单控件竖排撑满，避免横向挤出 */
+  .form-row { gap: 6px; }
+  .form-row input[type=text], .form-row select { flex: 1 1 100%; }
+  .form-row input[type=number] { flex: 1; width: auto; }
+  .form-row input[type=date] { flex: 1; }
+  .form-row button { flex-shrink: 0; }
+  .est-field { flex: 1 1 100%; }  /* 预估组件独占一行，别把 due 输入挤成半截 */
+  .wd-chip { width: 34px; height: 34px; }  /* 触控目标 ≥34px */
+
+  /* 日历：7 列在 360px 下每格只有 ~48px，全部收紧 */
+  .cal-grid { gap: 2px; }
+  .cal-cell { min-height: 58px; padding: 3px; border-radius: 6px; }
+  .cal-blank { min-height: 58px; }
+  .cal-daynum { font-size: 12px; }
+  .cal-chip { font-size: 11px; padding: 1px 3px; margin-top: 2px; border-left-width: 2px; }
+  .cal-meta { display: none; }  /* 格内预估/投入汇总在窄屏省略，点进去看 */
+  .cal-title { font-size: 15px; }
+  .cal-week { font-size: 11px; }
+
+  /* 全天浮层：窄屏铺开，条目元信息换行不挤 */
+  .day-overlay { padding: 10px; align-items: flex-start; }
+  .day-panel { max-height: 88vh; padding: 12px; }
+  .day-row { flex-wrap: wrap; row-gap: 2px; padding: 8px 6px; }
+  .day-row .task-title { min-width: 0; overflow-wrap: anywhere; }
+  .day-row .task-meta {
+    order: 9; flex-basis: 100%; white-space: normal;
+    line-height: 1.4; padding-left: 2px;
+  }
+  .day-row .btn-check { font-size: 17px; padding: 4px 8px; }
+
+
+  /* 统计 */
+  .bars { height: 90px; }
+  .dp-card .bars { gap: 2px; }
+  .bar-label { font-size: 8px; }
+  .dp-proj .rank-row { padding-left: 20px; }
+  /* 校准行更窄：说明单独占一行、采用按钮折到它下面，不挤也不颠倒阅读顺序 */
+  .dp-proj .calib-row { flex-wrap: wrap; row-gap: 4px; padding: 2px 2px 8px 30px; }
+  .dp-proj .calib-row .task-meta {
+    order: 0; flex-basis: 100%; white-space: normal;
+    line-height: 1.45; padding-left: 0;
+  }
+
+  /* 安全线标尺的标签在窄屏缩小字号 */
+  .safety-marker::after, .routine-marker::after, .safety-end::after { font-size: 10px; }
+  .greeting { flex-direction: column; align-items: flex-start; gap: 5px; }
+  .greet-main { font-size: 16px; }
+  .challenges { justify-content: flex-start; gap: 3px 12px; }
+}
+
+/* 已完成记录 */
+.done-list { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.done-list summary { cursor: pointer; color: var(--ink-soft); font-size: 13px; }
+.done-row .task-title { color: var(--ink-soft); text-decoration: line-through; }
+
+/* 挂起中（等回复 / 暂时推不动）：灰显留在项目卡里，但不进今日、日历、任务池 */
+.suspend-box { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.suspend-box summary { cursor: pointer; color: var(--ink-soft); font-size: 13px; }
+.suspend-box .task-row { padding: 6px 2px; }
+.suspended-row .task-title { color: var(--ink-soft); }
+.suspended-row .task-meta { color: var(--ink-soft); opacity: .75; }
+/* 挂太久（≥3 天没跟进）给浅橙；due 也过了的仍按红色算，红比橙更急 */
+.suspended-row .task-meta.stale { color: var(--stale); opacity: 1; }
+/* 挂起期间 due 过了不吹哨，但标红提醒「这事还在等」 */
+.suspended-row .task-meta.overdue { color: var(--danger); opacity: 1; }
+
+/* 今日页「⏸ 等待回复」：挂起 = 等别人回话，每天该扫一眼去催。
+   默认折成一行摘要，跟「🎯 下一件推荐」同级各占一张卡 */
+.wait-reply { padding: 10px 16px; }
+.wait-reply summary {
+  cursor: pointer; font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 14px; color: var(--accent);
+}
+.wait-note { font-size: 12px; color: var(--ink-soft); }
+.wait-reply summary .wait-note, .wait-reply summary .wait-hint { margin-left: 10px; }
+/* 没挂太久的那些：不催，只点一句「点开能看几天」；窄屏折到下一行也不挤 */
+.wait-hint { font-size: 11.5px; color: var(--ink-soft); opacity: .85; }
+.wait-reply .task-row { padding: 7px 2px; }
+
+/* 今日页：问候 / 安全线标尺 / 每日一句 */
+.greeting {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px 18px;
+  margin: 4px 2px 12px;
+}
+.greet-main { font-family: "Noto Serif SC", "Songti SC", serif; font-size: 17px; }
+.challenges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 14px; }
+.challenge {
+  display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  color: var(--ink-soft); font-size: 12px;
+}
+.challenge .ic { width: 13px; height: 13px; color: var(--accent); }
+.challenge-days { color: var(--accent); font-weight: 600; }
+.challenge-state { margin-left: 2px; font-size: 11px; }
+.challenge.is-met .challenge-days, .challenge.is-met .challenge-state { color: var(--ok); }
+
+/* 今天的目标构成：浅灰绿 = 今日日常量，浅棕褐 = 项目推进量，剩下是默认轨道；
+   上面盖的实色填充才是实际投入（实绿=日常、实棕=其它），三条刻度=日常量/安全线/日目标 */
+.safety-track {
+  position: relative; height: 10px; background: var(--line);
+  border-radius: 99px; margin: 30px 4px 26px;
+}
+/* 双轨：计划和实际各占一条，上下排列不互相叠压；两条共用同一把尺子（0..span） */
+.track-label { font-size: 12px; color: var(--ink-soft); text-align: left; margin: 0 4px 2px; }
+.safety-track.dual-plan { margin: 26px 4px 24px; }
+.safety-track.dual-actual { margin: 2px 4px 12px; }
+/* 只画竖线不写标签：实际条上的安全线/日目标，和计划条上下对齐 */
+.safety-marker.tick-only::after, .safety-end.tick-only::after { content: none; }
+/* 按实际结算预览：观察期只读小字，不参与判定 */
+.settle-preview { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+/* 超预估 / 无预估有实际：只给角标，挂在横条下方右端，不改绿区宽度也不动任何判定 */
+.hero-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 8px; margin-top: 6px; }
+.over-est-tag, .noest-tag, .over-run-tag, .under-est-tag {
+  font-size: 11px; line-height: 1.2; padding: 1px 6px; border-radius: 99px;
+  border: 1px solid currentColor; white-space: nowrap;
+}
+.over-est-tag { color: var(--warn); }
+.under-est-tag { color: var(--ok); }
+.noest-tag { color: var(--ink-soft); }
+/* 安全线超出条尾：条长封顶在日目标，多出来的分钟只能写出来，颜色跟下面那行提示一致 */
+.over-run-tag { color: var(--danger); }
+.safety-routine {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--routine) 45%, transparent);
+  border-right: 1px solid var(--routine); border-radius: 99px 0 0 99px;
+}
+.safety-project {
+  position: absolute; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--project-bar) 45%, transparent); border-radius: 0 99px 99px 0;
+}
+.safety-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--routine-fill); border-radius: 99px; transition: width .4s;
+}
+.safety-fill-project {
+  position: absolute; top: 0; bottom: 0;
+  background: var(--project-fill); border-radius: 0 99px 99px 0;
+  transition: width .4s;
+}
+.safety-marker {
+  position: absolute; top: -5px; width: 2px; height: 20px;
+  background: var(--accent); transform: translateX(-1px);
+}
+.safety-marker::after {
+  content: "安全线"; position: absolute; top: -18px; left: 50%;
+  transform: translateX(-50%); font-size: 11px; color: var(--accent); white-space: nowrap;
+}
+/* 被日目标封顶截在条尾：加粗换色 + 标签带 ▸，跟「正好落在边上」区分开；
+   标签右对齐，免得跑到卡片外面去 */
+.safety-marker.clamped { width: 3px; background: var(--danger); }
+.safety-marker.clamped::after {
+  content: "安全线 ▸"; color: var(--danger);
+  left: auto; right: 1px; transform: none;
+}
+/* 实际条上那根只画线不写标签，截断了也一样 */
+.safety-marker.clamped.tick-only::after { content: none; }
+/* 日常量刻度：竖线在轨道上，标签放轨道下侧，和上侧的安全线错开 */
+.routine-marker {
+  position: absolute; top: -5px; width: 2px; height: 20px;
+  background: var(--routine); transform: translateX(-1px);
+}
+.routine-marker::after {
+  content: "日常"; position: absolute; top: 16px; left: 50%;
+  transform: translateX(-50%); font-size: 11px; color: var(--routine); white-space: nowrap;
+}
+/* 和别的刻度挨太近时只留竖线，数值看 title */
+.routine-marker.tick-only::after { content: none; }
+.safety-end {
+  position: absolute; top: -5px; width: 1px; height: 20px;
+  border-left: 1px dashed var(--ink-soft); transform: translateX(-1px);
+}
+.safety-end::after {
+  content: attr(data-label); position: absolute; top: 16px; left: 50%;
+  transform: translateX(-50%); font-size: 11px; color: var(--ink-soft); white-space: nowrap;
+}
+.safety-end.at-end::after { left: auto; right: -1px; transform: none; }
+
+.note-input {
+  width: 100%; border: none; background: none; resize: vertical;
+  min-height: 56px; font: inherit; color: var(--ink); outline: none;
+}
+.note-yesterday {
+  margin-top: 8px; padding-left: 10px; border-left: 3px solid var(--accent);
+  font-size: 13px; color: var(--ink-soft);
+}
+
+/* 今日页：项目统计折叠 */
+.today-projs summary {
+  cursor: pointer; color: var(--ink-soft); font-size: 13px; list-style: none;
+  display: block;
+}
+.today-projs summary::-webkit-details-marker { display: none; }
+.today-projs summary::before { content: "▸ "; }
+.today-projs[open] summary::before { content: "▾ "; }
+.today-projs[open] > summary {
+  padding-bottom: 8px; margin-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+}
+.proj-today-card { padding-top: 12px; margin-top: 10px; border-top: 1px dashed var(--line); }
+/* 今日任务分组预览：只用标题和分隔线，不再嵌套卡片 */
+.today-group + .today-group { margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line); }
+.today-group-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 2px; }
+.today-group-title { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; }
+.today-group-title .ic { width: 14px; height: 14px; }
+.today-group-meta { color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
+
+/* 今日页各项目：已投入 / 今日线（目标）刻度条 + 图例 */
+.proj-legend {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;
+  font-size: 11px; color: var(--ink-soft); padding: 2px 2px 6px;
+}
+.legend-swatch { width: 26px; height: 8px; border-radius: 99px; flex-shrink: 0; }
+.legend-tick { width: 2px; height: 12px; background: var(--accent); flex-shrink: 0; }
+.proj-line {
+  position: relative; height: 8px; background: var(--line);
+  border-radius: 99px; margin: 10px 2px 5px;
+}
+.proj-line-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 99px; transition: width .4s;
+}
+.proj-line-marker {
+  position: absolute; top: -3px; width: 2px; height: 14px;
+  background: var(--accent); transform: translateX(-1px);
+}
+.proj-line-text { font-size: 11px; color: var(--ink-soft); padding-left: 2px; }
+.proj-line-gap { color: var(--danger); }
+.proj-line-ok { color: var(--ok); }
+/* 项目卡里的「今日建议」：从原来的独立折叠卡搬进来，跟这个项目的今日线放一起 */
+.proj-sug { margin-top: 8px; padding: 6px 8px; border-radius: 8px; background: var(--veil); }
+.proj-sug-head { font-size: 12px; color: var(--ink-soft); }
+.proj-sug .task-row { padding: 3px 0; }
+
+/* 窄屏：图例会换行，字号收一点；放在基础样式之后才盖得住 */
+@media (max-width: 600px) {
+  .proj-legend { font-size: 11px; gap: 4px 6px; }
+  .proj-line-text { font-size: 11px; }
+  .over-est-tag, .noest-tag, .over-run-tag { font-size: 11px; padding: 1px 5px; }
+  .proj-sug-head { font-size: 11px; }
+}
+
+/* ── 设置页：一行一条，左文案右控件 ─────── */
+.setting-group {
+  font-size: 12px; color: var(--ink-soft); letter-spacing: .1em;
+  margin: 16px 0 2px;
+}
+.setting-group:first-child { margin-top: 0; }
+.setting-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px dashed var(--line);
+}
+.setting-row:last-child { border-bottom: none; padding-bottom: 2px; }
+.setting-text { flex: 1; min-width: 0; }
+.setting-title { font-size: 14px; display: flex; align-items: center; gap: 4px; }
+.setting-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.4; margin-top: 1px; }
+.setting-more {
+  font-size: 12px; color: var(--ink-soft); line-height: 1.5;
+  margin-top: 6px; padding-left: 8px; border-left: 2px solid var(--line);
+}
+.hint-btn {
+  border: none; background: none; padding: 0 2px;
+  font-size: 13px; line-height: 1; color: var(--ink-soft);
+}
+.hint-btn:hover { color: var(--accent); }
+.setting-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.setting-ctrl input[type=number] { width: 72px; }
+/* 跳转页地址较长：桌面给输入框足够空间，窄屏让控件整行落到说明下面。 */
+.go-url-row { align-items: flex-start; flex-wrap: wrap; }
+.go-url-row .setting-text { flex: 1 1 220px; }
+.go-url-row .setting-ctrl { flex: 1 1 380px; min-width: 0; }
+.go-url-row .setting-ctrl input { flex: 1 1 200px; min-width: 0; }
+.go-url-row .setting-ctrl button { flex: 0 0 auto; }
+/* 布尔开关：纯 CSS 滑轨，input 用 sr-only 方式隐藏（保留 checkbox 语义、屏幕阅读器可读、
+   键盘可 Tab 可空格切；opacity:0 会让 Chromium 把它排除出无障碍树，所以不用那招）；
+   视觉尺寸由 .switch-track 撑，窄屏触控目标高度 32px */
+.switch {
+  position: relative; display: inline-flex; align-items: center;
+  min-height: 32px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.switch input {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.switch-track {
+  display: block; position: relative; width: 42px; height: 24px;
+  border-radius: 99px; background: var(--line); transition: background .18s;
+}
+.switch-track::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  transition: transform .18s;
+}
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::after { transform: translateX(18px); }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* 窄屏：控件收窄，说明允许换行，别把一行挤爆 */
+@media (max-width: 480px) {
+  .setting-row { gap: 8px; padding: 8px 0; }
+  .setting-desc { font-size: 11px; }
+  .setting-ctrl { gap: 6px; }
+  .setting-ctrl input[type=number] { width: 56px; padding: 6px; }
+  .setting-ctrl button { padding: 6px 8px; font-size: 13px; }
+  .go-url-row .setting-ctrl { flex-basis: 100%; flex-wrap: wrap; }
+  .go-url-row .setting-ctrl input { flex-basis: 100%; min-height: 40px; }
+}
+
+/* ── 交互式新手引导 ───────────────────── */
+.guide-entry {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 4px 12px;
+  color: var(--ink-soft);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+}
+.guide-entry:hover { color: var(--accent); border-color: var(--accent); }
+
+/* 手机访问二维码：点击「手机访问」才弹出，平时收起 */
+.header-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.qr-pop {
+  position: absolute; left: 50%; transform: translateX(-50%); z-index: 60;
+  margin-top: 10px; padding: 14px 18px; width: min(340px, calc(100vw - 32px));
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.18); text-align: center;
+}
+.site-header { position: relative; }
+.qr-pop-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.qr-img { display: flex; justify-content: center; padding: 6px; background: #fff; border-radius: 8px; }
+.qr-img img, .qr-img canvas, .qr-img table { display: block; }
+.qr-addr { font-size: 12px; color: var(--ink-soft); margin-top: 8px; word-break: break-all; }
+.qr-hint { font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin-top: 6px; }
+.qr-go-guide {
+  margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+  color: var(--ink-soft); text-align: left; font-size: 11px; line-height: 1.6;
+}
+.qr-go-title { color: var(--ink); font-size: 12px; font-weight: 600; }
+.qr-go-guide ol { padding-left: 18px; margin-top: 4px; }
+.qr-go-guide li + li { margin-top: 4px; }
+.qr-go-link { display: inline-block; margin-top: 8px; color: var(--accent); font-size: 12px; }
+/* 科技皮肤的页头靠左，两个入口和二维码弹层一起靠左；其余皮肤保持居中。 */
+html[data-theme="tech"] .header-actions { justify-content: flex-start; }
+html[data-theme="tech"] .qr-pop { left: 0; transform: none; }
+
+.tour-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--overlay);
+}
+.tour-highlight {
+  position: relative !important;
+  z-index: 101 !important;
+  box-shadow: 0 0 0 3px var(--accent), 0 6px 24px rgba(61,56,48,.35);
+  border-radius: 10px;
+}
+.tour-card {
+  position: absolute; z-index: 102;
+  width: min(360px, 90vw);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(61,56,48,.25);
+}
+.tour-card.center { position: fixed; left: 50%; top: 40%; transform: translate(-50%, -50%); }
+.tour-step { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+.tour-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.tour-body { font-size: 14px; color: var(--ink); line-height: 1.6; }
+.tour-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.tour-actions button { font-size: 13px; padding: 5px 12px; }
+.tour-actions .tour-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+@media (max-width: 600px) {
+  .tour-card { padding: 14px; }
+  .tour-title { font-size: 15px; }
+  .tour-body { font-size: 13px; }
+}
+
+/* ── 新版本更新提示（居中一张小卡，z-index 压在引导下面） ── */
+.wn-overlay {
+  position: fixed; inset: 0; z-index: 96;
+  background: var(--overlay);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.wn-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  width: min(360px, 90vw); max-height: 80vh; overflow-y: auto;
+  padding: 16px; box-shadow: 0 8px 30px rgba(61,56,48,.28);
+}
+.wn-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.wn-title { flex: 1; font-size: 16px; font-weight: 600; line-height: 1.4; }
+.wn-list {
+  padding-left: 20px; font-size: 14px; line-height: 1.7; color: var(--ink);
+}
+.wn-list li { margin-bottom: 3px; }
+.wn-actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+.wn-actions button { font-size: 13px; padding: 5px 14px; }
+.wn-actions .wn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* 每日鞭策弹窗：复用 wn 壳子，正文是行不是列表；「不再提示」弱化成文字键靠左 */
+.nag-body { font-size: 14px; line-height: 1.9; color: var(--ink); }
+.nag-total { margin-top: 6px; font-weight: 600; color: var(--danger); }
+.nag-off {
+  margin-right: auto; padding: 5px 0; border: 0; background: none;
+  color: var(--ink-soft); font-size: 12px; cursor: pointer;
+}
+.nag-off:hover { color: var(--ink); }
+
+@media (max-width: 600px) {
+  .wn-card { padding: 14px; }
+  .wn-title { font-size: 15px; }
+  .wn-list { font-size: 13px; }
+}
+
+/* ── 设置页「历史数据导出」折叠卡 ─────────
+   放在数据备份下面，展开才露内容；窄屏一行放不下就整块落到下一行，不横向溢出 */
+.export-box {
+  margin: 10px 0 12px; padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.export-box > summary {
+  cursor: pointer; font-size: 14px; color: var(--ink);
+  user-select: none; list-style-position: outside; padding-left: 2px;
+}
+.export-box > summary:hover { color: var(--accent); }
+.export-box[open] > summary { margin-bottom: 6px; }
+.export-body { padding: 2px 0 2px 2px; }
+.export-row {
+  display: flex; align-items: flex-start; gap: 12px; padding: 8px 0;
+}
+.export-label {
+  flex: 0 0 56px; width: 56px; font-size: 13px;
+  color: var(--ink-soft); padding-top: 3px;
+}
+.export-ctrl { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.export-ctrl-block {
+  flex: 1; min-width: 0; display: flex; flex-direction: column;
+  align-items: stretch; gap: 6px;
+}
+.export-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.export-count { font-size: 12px; color: var(--ink-soft); }
+.link-btn {
+  border: none; background: none; padding: 0; font-size: 12px;
+  color: var(--accent); text-decoration: underline;
+}
+.export-check-list {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  max-height: 132px; overflow-y: auto;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px;
+}
+.export-check {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; cursor: pointer; max-width: 100%;
+}
+.export-check > span:last-child {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.export-check input[type=checkbox] { margin: 0; flex-shrink: 0; }
+.export-check.muted { opacity: .5; }
+.export-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  display: inline-block;
+}
+.export-dates { display: flex; align-items: center; gap: 6px; align-self: flex-start; }
+.export-dash { color: var(--ink-soft); font-size: 13px; }
+.export-note {
+  font-size: 11px; color: var(--ink-soft); line-height: 1.5;
+  margin: -2px 0 6px 68px;
+}
+.export-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 2px 68px; }
+.export-hint { font-size: 12px; color: var(--ink-soft); min-width: 0; word-break: break-all; }
+.export-hint.ok { color: var(--ok); }
+.export-hint.err { color: var(--danger); }
+
+@media (max-width: 480px) {
+  /* 窄屏：标签挪到控件上方整行，日期和下拉都不许撑出屏幕 */
+  .export-row { flex-direction: column; gap: 4px; padding: 6px 0; }
+  .export-label { flex: none; width: auto; padding-top: 0; }
+  .export-ctrl { align-items: stretch; }
+  .export-note, .export-foot { margin-left: 0; }
+  .export-dates { align-self: stretch; }
+  .export-dates input[type=date] { flex: 1; min-width: 0; }
+  .export-check-list { max-height: 168px; }
+  .export-body select { width: 100%; }
+  .seg-btn { padding: 6px 10px; font-size: 12px; }
+}
+
+/* ── 「下一件推荐」标题旁的 ⚙ 与就地设置面板 ──────────
+   设置入口常驻在台上（不在设置页里另开一套）；展开是就地一块，手机上一行放不下
+   就整行落到控件上方，不横向溢出 */
+.next-rec-head { display: flex; align-items: center; gap: 8px; }
+.next-rec-title { flex: 1; min-width: 0; }
+.gear-btn {
+  flex-shrink: 0; width: 28px; height: 28px; line-height: 1; padding: 0;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+  color: var(--ink-soft); font-size: 14px;
+}
+.gear-btn:hover, .gear-btn.on { color: var(--accent); border-color: var(--accent); }
+.rec-cfg {
+  margin: 8px 0 6px; padding: 8px 10px; border-radius: 10px;
+  background: var(--veil); display: flex; flex-direction: column; gap: 8px;
+}
+.rec-cfg-row { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.rec-cfg-label { font-size: 12px; color: var(--ink-soft); padding-top: 6px; flex: 0 0 56px; }
+.rec-cfg-ctrl { display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+.rec-cfg-unit, .rec-cfg-hint { font-size: 12px; color: var(--ink-soft); }
+.rec-min-input { width: 84px; }
+.rec-proj-list {
+  display: flex; flex-wrap: wrap; gap: 6px 10px; max-height: 168px; overflow-y: auto;
+  padding: 2px 0;
+}
+.rec-proj {
+  display: flex; align-items: center; gap: 5px; font-size: 12px;
+  padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px;
+}
+.rec-proj.on { border-color: var(--accent); background: var(--veil); }
+.rec-proj-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.rec-proj-name { max-width: 12em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rec-move { padding: 0 2px; font-size: 13px; line-height: 1; }
+.rec-move:disabled { opacity: .35; }
+.rec-save { align-self: flex-start; }
+/* 小额建议：折起来只留一行汇总 */
+.next-rec-small { margin-top: 6px; border-top: 1px dashed var(--line); padding-top: 6px; }
+.next-rec-small > summary { font-size: 12px; color: var(--ink-soft); cursor: pointer; }
+.next-rec-small[open] > summary { color: var(--ink); }
+.next-rec-small .task-row, .proj-small .task-row { padding: 3px 0; }
+.rec-cfg .empty, .next-rec .empty { font-size: 12px; }
+.proj-small { margin-top: 4px; }
+.proj-small > summary { font-size: 11px; color: var(--ink-soft); cursor: pointer; }
+.small-row .task-title { font-size: 13px; color: var(--ink-soft); }
+.small-row .dot { opacity: .55; }
+
+/* ── 任务详情：行下面就地铺开的多行文本 ────────────
+   不用 tooltip/hover 那种只能鼠标看的办法：触屏上点一下就在行下面展开 */
+.task-detail {
+  margin: 2px 0 8px 18px; padding: 8px 10px; border-left: 3px solid var(--line);
+  background: var(--veil); border-radius: 0 8px 8px 0;
+  font-size: 13px; line-height: 1.6; color: var(--ink);
+}
+.task-detail-line { white-space: pre-wrap; overflow-wrap: anywhere; }
+.task-detail-close { margin-top: 4px; }
+.task-row.detail-open { background: var(--veil); }
+.detail-edit { flex: 1 1 100%; margin-top: 6px; }
+.detail-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; line-height: 1.5;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--card); color: var(--ink); resize: vertical;
+}
+.add-detail-btn { align-self: center; }
+
+/* ── 局域网：待重启提醒 + 立即重启 ───────────────── */
+.lan-pending {
+  margin: 6px 0 10px; padding: 8px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 7%, transparent); display: flex; align-items: center;
+  gap: 10px; flex-wrap: wrap;
+}
+.lan-pending-text { font-size: 12px; color: var(--danger); flex: 1 1 220px; min-width: 0; }
+.lan-pending-hint { font-size: 12px; color: var(--ink-soft); flex: 1 1 100%; }
+.lan-pending-hint.ok { color: var(--ok); }
+.lan-pending-hint.err { color: var(--danger); }
+
+/* ── 局域网同步 ─────────────────────────────────────── */
+.sync-row .setting-text { display: none; }
+.sync-row .setting-ctrl {
+  flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center;
+}
+.sync-row .setting-ctrl button { flex: 0 0 auto; }
+.sync-hint {
+  flex: 1 1 100%; font-size: 12px; color: var(--ink-soft); line-height: 1.45;
+}
+.sync-status {
+  margin: 4px 0 10px; padding: 8px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  font-size: 12px; line-height: 1.5; color: var(--ink);
+}
+.sync-status.err { background: color-mix(in srgb, var(--danger) 7%, transparent); color: var(--danger); }
+
+/* ── 自动更新 ───────────────────────────────────────── */
+.update-box { margin: 4px 0 10px; }
+.update-dev-hint {
+  padding: 8px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  color: var(--danger); font-size: 13px;
+}
+.update-row .setting-text { display: none; }
+.update-row .setting-ctrl {
+  flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 8px;
+  align-items: center;
+}
+.update-row .setting-ctrl button { flex: 0 0 auto; }
+.update-hint {
+  flex: 1 1 100%; font-size: 12px; color: var(--ink-soft); line-height: 1.45;
+}
+.update-status {
+  margin: 4px 0 10px; padding: 8px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  font-size: 12px; line-height: 1.5; color: var(--ink);
+}
+.update-status.ok { background: color-mix(in srgb, var(--ok) 10%, transparent); color: var(--ok); }
+.update-status.err { background: color-mix(in srgb, var(--danger) 7%, transparent); color: var(--danger); }
+
+@media (max-width: 480px) {
+  /* 窄屏：标签整行落到控件上方，勾选框列表限高滚动，任何一行都不许撑出屏幕 */
+  .rec-cfg-row { flex-direction: column; gap: 4px; }
+  .rec-cfg-label { flex: none; padding-top: 0; }
+  .rec-cfg-ctrl { width: 100%; }
+  .rec-min-input { width: 100%; flex: 1 1 84px; min-width: 0; }
+  .rec-proj-list { max-height: 150px; }
+  .rec-proj { max-width: 100%; }
+  .rec-proj-name { max-width: 8em; }
+  .task-detail { margin-left: 0; }
+  .lan-pending-text { flex: 1 1 100%; }
+  .lan-pending .lan-restart { flex: 1 1 100%; }
+}
+
+/* 键盘焦点可见：原来只有设置开关有描边，全站补上（鼠标点击不触发） */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ── 皮肤：设置页「界面皮肤」切换，值挂在 <html data-theme> 上 ─────────────
+   只覆盖 token 和少数结构性差异，组件全部吃变量。配色取自 skin-preview.html */
+
+/* 夜间 · 夜间档案：墨绿黑底 + 暖白字，计时条翻成浅色 */
+html[data-theme="night"] {
+  --bg: #101312; --card: #181d1b; --ink: #e8ece8; --ink-soft: #a7b0aa;
+  --line: #343c38; --accent: #d5a86a; --on-accent: #101312;
+  --routine: #83a98b; --routine-fill: #83a98b;
+  --project-bar: #c0a587; --project-fill: #c0a587;
+  --danger: #e59888; --danger-solid: #8a4f47;
+  /* 深色底保持浅灰字；绿色实心按钮用深字时，绿色要提亮才清楚。 */
+  --ok: #93b89a; --ok-solid: #659477;
+  --warn: #d5a86a; --stale: #d0a35c;
+  --veil: rgba(255,255,255,.045);
+  --input-bg: #101312;
+  --timerbar-bg: #e8ece8; --timerbar-ink: #101312; --timerbar-dot: #d5a86a;
+  --overlay: rgba(0,0,0,.6);
+  --card-shadow: none;
+  --today-bg: rgba(213,168,106,.14); --today-ink: #d5a86a;
+}
+/* 浅色计时条上按钮翻成深字描边（完成/停止自带的彩色底在这儿太跳） */
+html[data-theme="night"] .timerbar .btn {
+  background: transparent; color: inherit; border-color: rgba(16,19,18,.4);
+}
+/* 页头档案编号小字（样式在基础规则里，这里只换文案） */
+html[data-theme="night"] .site-header::before { content: "NIGHT LOG"; }
+/* 深色皮肤：系统原生控件（日期选择的日历图标、数字框箭头、下拉）按深色模式渲染，
+   不然浏览器默认画深色图标，落在深色输入底上几乎看不见 */
+html[data-theme="night"], html[data-theme="nasa"] { color-scheme: dark; }
+
+/* 机能 · FIELD OPS：灰绿图纸底、直角卡片、等宽数字，hero 右侧黄色楔形档案角 */
+html[data-theme="tech"] {
+  --bg: #dedbd2; --card: #f0ede4; --ink: #202321; --ink-soft: #626861;
+  --line: #b7b3a6; --accent: #9a4e00; --on-accent: #ffffff;
+  --routine: #8ab058; --routine-fill: #6f9b3f;
+  --project-bar: #6bb3bd; --project-fill: #3d8f9b;
+  --danger: #a94438; --danger-solid: #a94438;
+  /* 机能皮肤保留橙色主按钮，绿色状态字和通用完成底单独压深。 */
+  --ok: #4c712c; --ok-solid: #4c712c;
+  --warn: #8f7020; --stale: #a8823c;
+  --card-shadow: 0 2px 0 rgba(0,0,0,.15);
+  --timerbar-bg: #f0ede4; --timerbar-ink: #202321; --timerbar-dot: #f0c33c;
+  --today-bg: rgba(154,78,0,.1); --today-ink: #9a4e00;
+}
+html[data-theme="tech"] body {
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 86px, rgba(32,35,33,.05) 87px, transparent 88px 176px),
+    linear-gradient(180deg, #dedbd2, #d4d0c5);
+}
+html[data-theme="tech"] .site-header { text-align: left; border-bottom: 2px solid var(--line); padding-bottom: 9px; }
+html[data-theme="tech"] .site-header h1 { font-family: inherit; font-weight: 800; letter-spacing: .08em; }
+html[data-theme="tech"] .site-header::before { content: "FIELD OPS / UNIT 03"; font-family: Consolas, monospace; }
+html[data-theme="tech"] .card { border-radius: 4px; }
+html[data-theme="tech"] button,
+html[data-theme="tech"] input,
+html[data-theme="tech"] select { border-radius: 3px; }
+html[data-theme="tech"] .big-number,
+html[data-theme="tech"] .timerbar-elapsed { font-family: Consolas, "SFMono-Regular", monospace; letter-spacing: -.04em; }
+html[data-theme="tech"] .safety-track, html[data-theme="tech"] .safety-fill,
+html[data-theme="tech"] .safety-routine, html[data-theme="tech"] .safety-project,
+html[data-theme="tech"] .safety-fill-project,
+html[data-theme="tech"] .proj-line, html[data-theme="tech"] .proj-line-fill,
+html[data-theme="tech"] .progress-track, html[data-theme="tech"] .progress-fill { border-radius: 0; }
+/* 浅面板计时条：左侧黑色 OPS 斜切模块（预览同款），时间用黑底米字 chip，
+   完成键橙底、停止键黑底，不显示脉冲点。
+   注意别在这里写 position: relative，会顶掉基础样式的 sticky；sticky 本身就是定位上下文 */
+html[data-theme="tech"] .timerbar {
+  overflow: hidden;
+  box-shadow: 0 2px 0 rgba(0,0,0,.4); border-radius: 4px;
+  padding-left: 82px;
+}
+html[data-theme="tech"] .timerbar::before {
+  content: "OPS"; position: absolute; left: 0; top: 0; bottom: 0; width: 72px;
+  display: grid; place-items: center;
+  background: #202321; color: #9a4e00;
+  font-family: Consolas, monospace; font-size: 12px; font-weight: 900; letter-spacing: .18em;
+  clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+}
+html[data-theme="tech"] .timerbar-dot { display: none; }
+html[data-theme="tech"] .timerbar-elapsed {
+  padding: 2px 6px; border-radius: 2px; background: #202321; color: #f0ede4;
+}
+html[data-theme="tech"] .timerbar .btn { background: #202321; color: #f0ede4; border-color: #202321; }
+html[data-theme="tech"] .timerbar .btn-done { background: #9a4e00; border-color: #9a4e00; }
+html[data-theme="tech"] .hero {
+  position: relative; overflow: hidden; border: 0; padding-right: 20%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 86px, rgba(25,29,32,.04) 87px, transparent 88px 172px),
+    repeating-linear-gradient(0deg, rgba(25,29,32,.09) 0 2px, transparent 2px 9px),
+    var(--card);
+  background-size: auto, 1px 100%, auto;
+  background-position: 0 0, 62% 0, 0 0;
+  background-repeat: repeat, no-repeat, repeat;
+  box-shadow: 0 4px 0 rgba(0,0,0,.2);
+}
+html[data-theme="tech"] .hero::after {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 16%;
+  background: #f0c33c; clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+}
+/* 楔形上的竖排编号：预览里那个 03 扩成整串，大号粗体等宽字贴着 hero 右缘 */
+html[data-theme="tech"] .hero::before {
+  content: "FIELD OPERATIONS / 03";
+  position: absolute; top: 12px; right: 1.1%; z-index: 1;
+  writing-mode: vertical-rl;
+  font-family: Consolas, "SFMono-Regular", monospace; font-size: 22px; font-weight: 900;
+  letter-spacing: .04em; color: #202321;
+}
+
+/* 自然 · 森林露营：米绿底 + 大圆角，hero 林间渐变配营钉签和三角树剪影 */
+html[data-theme="nature"] {
+  --bg: #f2efe2; --card: #fffdf4; --ink: #26372c; --ink-soft: #66745f;
+  --line: #d9d1b8; --accent: #315d3f; --on-accent: #fffdf4;
+  --routine: #8ab892; --routine-fill: #6f9e78;
+  --project-bar: #cfa876; --project-fill: #b48a5a;
+  --danger: #a65f4a; --danger-solid: #a65f4a;
+  /* 米白卡片上的绿色状态字压深，hero 内继续使用浅芽绿。 */
+  --ok: #467551; --ok-solid: #467551;
+  --warn: #9a6a3a; --stale: #a8823c;
+  --card-shadow: 0 2px 8px rgba(49,93,63,.05);
+  --timerbar-bg: #263f2c; --timerbar-ink: #fffdf4; --timerbar-dot: #d3ad7c;
+  --today-bg: rgba(49,93,63,.08); --today-ink: #315d3f;
+}
+html[data-theme="nature"] body {
+  background-image:
+    repeating-radial-gradient(circle at 5% 2%, transparent 0 17px, rgba(49,93,63,.05) 18px, transparent 19px 36px),
+    radial-gradient(circle at 96% 12%, rgba(111,158,120,.1), transparent 32%),
+    radial-gradient(circle at 4% 72%, rgba(180,138,90,.07), transparent 30%);
+}
+html[data-theme="nature"] .site-header::before { content: "FOREST CAMP / TRAIL 07"; }
+html[data-theme="nature"] .card { border-radius: 18px; background: linear-gradient(180deg, rgba(255,253,244,.8), rgba(251,247,234,.75)); border-color: #e4dec6; }
+html[data-theme="nature"] .row-actions button { border-radius: 999px; }
+html[data-theme="nature"] .timerbar { border-radius: 18px; }
+html[data-theme="nature"] .timerbar .btn { background: transparent; color: #fffdf4; border-color: rgba(255,253,244,.35); }
+html[data-theme="nature"] .timerbar .btn-done { background: #9fca9b; color: #263f2c; border-color: #9fca9b; }
+html[data-theme="nature"] .hero {
+  position: relative; text-align: left; color: #fffdf4; border: 0; overflow: hidden;
+  --ink: #fffdf4; --ink-soft: #e9efd8; --accent: #fffdf4;
+  --routine: #9fca9b; --routine-fill: #9fca9b;
+  --project-bar: #d3ad7c; --project-fill: #d3ad7c;
+  --line: rgba(255,253,244,.18); --warn: #e8c9a0; --danger: #f0a88f;
+  /* 深绿 hero 里的省预估胶囊使用浅芽绿，保持对比 */
+  --ok: #cdebb6;
+  background:
+    repeating-radial-gradient(circle at 105% -30%, transparent 0 20px, rgba(220,232,198,.12) 21px, transparent 22px 42px),
+    linear-gradient(120deg, #263f2c, #3d6746);
+}
+html[data-theme="nature"] .hero .big-number { color: #fffdf4; font-family: inherit; font-weight: 600; }
+/* hero 里 --ink 翻白了，卡片按钮摁回深绿字 */
+html[data-theme="nature"] .hero button { background: #fffdf4; color: #315d3f; border-color: transparent; }
+html[data-theme="nature"] .hero::before {
+  content: "TRAIL 07"; position: absolute; top: 10px; right: 12px;
+  padding: 2px 7px; border: 1px solid #d9d1b8; border-radius: 3px;
+  background: #f4ead0; color: #315d3f; font-size: 9px; letter-spacing: .12em;
+  transform: rotate(3deg); pointer-events: none;
+}
+html[data-theme="nature"] .hero::after {
+  content: ""; position: absolute; right: 24px; bottom: 18px; width: 56px; height: 38px;
+  background: rgba(232,217,173,.55); pointer-events: none;
+  clip-path: polygon(50% 0, 100% 100%, 62% 100%, 50% 42%, 38% 100%, 0 100%);
+}
+
+/* NASA 朋克 · 轨道计划：深空蓝 + 扫描线网格，描边直角按钮、彩条计时条、描边大字压页头 */
+html[data-theme="nasa"] {
+  --bg: #0b1320; --card: #121e2e; --ink: #f2f0e8; --ink-soft: #a7b3c2;
+  --line: #314158; --accent: #e05b47; --on-accent: #0b1320;
+  --routine: #65c2c9; --routine-fill: #65c2c9;
+  --project-bar: #e8b85c; --project-fill: #e8b85c;
+  --danger: #ff8a7a; --danger-solid: #a04a3f;
+  /* 状态字保持亮绿；绿色实心按钮配深字时适度提亮。 */
+  --ok: #6fc48f; --ok-solid: #57956b;
+  --warn: #e8b85c; --stale: #d0a35c;
+  --veil: rgba(255,255,255,.045);
+  --input-bg: #0b1320;
+  --timerbar-dot: #e05b47;
+  --overlay: rgba(0,0,0,.6);
+  --card-shadow: none;
+  --today-bg: rgba(224,91,71,.15); --today-ink: #e05b47;
+}
+html[data-theme="nasa"] body {
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(242,240,232,.015) 4px),
+    radial-gradient(circle, rgba(101,194,201,.14) 1px, transparent 1.5px),
+    repeating-radial-gradient(circle at 112% 48%, transparent 0 58px, rgba(101,194,201,.11) 59px, transparent 60px 118px),
+    repeating-radial-gradient(circle at -8% 76%, transparent 0 42px, rgba(224,91,71,.07) 43px, transparent 44px 88px),
+    radial-gradient(circle at 12% 15%, rgba(242,240,232,.33) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 8%, rgba(242,240,232,.27) 0 1px, transparent 1.5px),
+    linear-gradient(rgba(49,65,88,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(49,65,88,.09) 1px, transparent 1px);
+  background-size: auto, 18px 18px, auto, auto, auto, auto, 36px 36px, 36px 36px;
+}
+html[data-theme="nasa"] .site-header { position: relative; }
+html[data-theme="nasa"] .site-header::before { content: "MISSION / TODAY"; font-family: Consolas, monospace; }
+/* 描边大字压在页头后面，kicker 和标题要浮上来 */
+html[data-theme="nasa"] .site-header::after {
+  content: "MISSION"; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  color: transparent; -webkit-text-stroke: 1px rgba(101,194,201,.2);
+  font-family: Consolas, monospace; font-size: 56px; font-weight: 900;
+  letter-spacing: .14em; white-space: nowrap; pointer-events: none;
+}
+html[data-theme="nasa"] .site-header > *,
+html[data-theme="nasa"] .site-header::before { position: relative; z-index: 1; }
+html[data-theme="nasa"] .site-header h1,
+html[data-theme="nasa"] .cal-title,
+html[data-theme="nasa"] .greet-main,
+html[data-theme="nasa"] .next-rec-head,
+html[data-theme="nasa"] .wait-reply summary,
+html[data-theme="nasa"] .big-number { font-family: inherit; }
+html[data-theme="nasa"] .big-number,
+html[data-theme="nasa"] .timerbar-elapsed { font-family: Consolas, "SFMono-Regular", monospace; }
+html[data-theme="nasa"] .card { border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(242,240,232,.03); }
+html[data-theme="nasa"] button,
+html[data-theme="nasa"] input,
+html[data-theme="nasa"] select { border-radius: 3px; }
+/* 行内按钮：红描边直角 + 硬投影，icon 颜色各归各（播放红、完成绿） */
+html[data-theme="nasa"] .row-actions button {
+  border-radius: 0; background: transparent;
+  border-color: var(--accent); box-shadow: 0 2px 0 rgba(0,0,0,.45);
+}
+/* 彩条计时条：左 2/3 米白放任务名，右 1/3 斜切彩条，按钮深色底浮在彩条上 */
+html[data-theme="nasa"] .timerbar {
+  border-radius: 3px;
+  background: linear-gradient(115deg,
+    #f2f0e8 0 68%,
+    #65c2c9 68% 72%, #e05b47 72% 76%, #e8b85c 76% 80%,
+    #65c2c9 80% 84%, #e05b47 84% 88%, #e8b85c 88% 92%,
+    #65c2c9 92% 96%, #e05b47 96% 100%);
+  color: #0b1320; box-shadow: 0 2px 0 rgba(0,0,0,.4);
+}
+html[data-theme="nasa"] .timerbar-elapsed {
+  padding: 1px 6px; border-radius: 3px; background: rgba(255,253,244,.85); color: #121e2e;
+}
+/* 按钮沿用预览的老设备按键：深色底 + 红描边红图标 + 硬底边，不做实心黑块 */
+html[data-theme="nasa"] .timerbar .btn {
+  background: #121e2e; color: #e05b47; border-color: #e05b47; border-radius: 0;
+  box-shadow: 0 2px 0 rgba(0,0,0,.45);
+}
+/* hero：网格线 + 半透明舱段底，透出页面的星点和环线纹理；
+   左上角一段刻度条、右上角 TRAJ / PLAN 批注签（预览同款） */
+html[data-theme="nasa"] .hero {
+  position: relative; overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(101,194,201,.75) 0 3px, transparent 3px 10px) 38px 12px / 88px 8px no-repeat,
+    linear-gradient(rgba(101,194,201,.07) 1px, transparent 1px) left top / 100% 24px,
+    linear-gradient(90deg, rgba(101,194,201,.07) 1px, transparent 1px) left top / 24px 100%,
+    linear-gradient(180deg, rgba(18, 30, 46, .84), rgba(18, 30, 46, .68));
+  box-shadow: inset 0 0 0 1px rgba(101,194,201,.1), inset 0 16px 32px rgba(101,194,201,.03);
+}
+html[data-theme="nasa"] .hero > .label:first-child::after {
+  content: "TRAJ / PLAN"; position: absolute; top: 10px; right: 12px;
+  padding: 2px 6px; border: 1px solid rgba(101,194,201,.35); border-radius: 2px;
+  background: rgba(11,19,32,.8); color: var(--routine);
+  font-family: Consolas, monospace; font-size: 8px; letter-spacing: .16em;
+}
+html[data-theme="nasa"] .hero::before,
+html[data-theme="nasa"] .hero::after {
+  content: ""; position: absolute; width: 20px; height: 20px; pointer-events: none;
+}
+html[data-theme="nasa"] .hero::before {
+  top: 7px; left: 7px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent);
+}
+html[data-theme="nasa"] .hero::after {
+  right: 7px; bottom: 7px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent);
+}
+
+/* 跟随系统「减少动态效果」：脉冲、宽度过渡、按压缩放全部压掉 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

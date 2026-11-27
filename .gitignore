@@ -1,0 +1,8 @@
+data/
+__pycache__/
+*.pyc
+*.7z
+*.log
+.design-review/
+DEV-NO-UPDATE
+待更新清单.md

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#faf7f2">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日拱一卒">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<title>日拱一卒</title>
+<script>
+// 皮肤要在首屏绘制前挂到 <html> 上，不然先闪一帧经典色。逻辑和 app.js 的 themeSet 对应
+(function(){try{var t=localStorage.getItem("pace_theme");if(["night","tech","nature","nasa"].indexOf(t)>=0)document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+</script>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- 全站图标 sprite：描边图标跟随 currentColor，填充图标自己声明 fill/stroke；
+     换皮肤只改 token，图标自动跟着按钮字色走。对应关系见 app.js 的 icon() -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></g></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 6.5V12l3.5 2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#fff"/><rect x="16" y="5" width="3" height="3" fill="#fff"/><rect x="5" y="16" width="3" height="3" fill="#fff"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></g></symbol>
+</svg>
+
+<div id="timerbar" class="timerbar hidden">
+  <span class="timerbar-dot"></span>
+  <span id="timer-title" class="timerbar-title"></span>
+  <span id="timer-elapsed" class="timerbar-elapsed">00:00</span>
+  <button id="timer-done" class="btn btn-done" title="停止计时并把任务标为完成"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>完成</button>
+  <button id="timer-stop" class="btn btn-stop"><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg>停止</button>
+</div>
+
+<header class="site-header">
+  <h1>日拱一卒</h1>
+  <p class="subtitle">每天推进一点点，事事都能有着落</p>
+  <p class="subtitle hidden" id="lan-line"></p>
+  <div class="header-actions">
+    <button id="qr-btn" class="guide-entry" type="button" title="手机扫码访问本机（地址变了重新扫一次即可）"><svg class="ic" aria-hidden="true"><use href="#i-qr"/></svg>手机访问</button>
+    <button id="guide-btn" class="guide-entry" type="button" title="看当前这一页怎么用（气泡里可切到完整教程）"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg>使用引导</button>
+  </div>
+  <div id="qr-pop" class="qr-pop hidden">
+    <div class="qr-pop-title">手机扫码，直达本机</div>
+    <div id="qr-img" class="qr-img"></div>
+    <div id="qr-addr" class="qr-addr"></div>
+    <div class="qr-hint">这个二维码会把上面的本机地址登记到跳转页，并打开当前 Pace。</div>
+    <div class="qr-go-guide">
+      <div class="qr-go-title">跳转页怎么用</div>
+      <ol>
+        <li>第一次：电脑保持 Pace 运行，手机与电脑连同一 Wi-Fi，扫码后会登记地址并自动进入。</li>
+        <li>以后：收藏跳转页，或把它「添加到主屏幕」。家里、公司各扫一次后，打开它会自动寻找能连上的那台。</li>
+        <li>电脑地址变了就重新扫码。跳转页只保存访问地址，任务和工时仍只存在各电脑本地。</li>
+        <li>默认跳转页下载后即可使用。自托管时到「统计·设置 → 系统 → 跳转页地址」替换，设置会保存在本机。</li>
+      </ol>
+      <a id="qr-go-link" class="qr-go-link" href="https://c3h18o2.github.io/daily-pace/go.html" target="_blank" rel="noopener noreferrer">在新标签页打开跳转页</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="tab-today" class="tab"></section>
+  <section id="tab-calendar" class="tab hidden"></section>
+  <section id="tab-projects" class="tab hidden"></section>
+  <section id="tab-stats" class="tab hidden"></section>
+</main>
+
+<nav class="bottom-nav">
+  <button data-tab="today" class="nav-btn active">今日</button>
+  <button data-tab="calendar" class="nav-btn">日历</button>
+  <button data-tab="projects" class="nav-btn">项目</button>
+  <button data-tab="stats" class="nav-btn">统计·设置</button>
+</nav>
+
+<script src="/qrcode.min.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
